@@ -1,22 +1,230 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Forever</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Forever</title>
 <style>
-:root{--bg:#090a12;--card:#141725;--muted:#9ea5ba;--text:#f7f7fb;--pink:#ff6da8;--gold:#f5d789}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#32192f,#090a12 45%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}button,input,textarea{font:inherit}button{cursor:pointer}.wrap{max-width:1050px;margin:auto;padding:20px}.card{background:#141725dd;border:1px solid #2b3044;border-radius:22px;padding:20px}.hidden{display:none}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.brand{font-size:27px;font-weight:800}.pink{color:var(--pink)}.muted{color:var(--muted)}.auth{min-height:100vh;display:grid;place-items:center;padding:20px}.auth .card{width:min(440px,100%)}input,textarea{width:100%;padding:13px;border-radius:12px;border:1px solid #34394e;background:#0d0f18;color:#fff;margin:7px 0 15px}textarea{min-height:110px}.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:700}.primary{background:linear-gradient(135deg,#ff5b9d,#ff8b73);color:#fff}.secondary{background:#22263a;color:#fff;border:1px solid #363c53}.hero{padding:50px 0}.hero h1{font-size:clamp(40px,8vw,76px);line-height:.98;margin:12px 0}.hero p{max-width:720px;color:#c2c7d5;font-size:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.tile{min-height:150px}.price{color:var(--gold);font-weight:800}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}.stat b{font-size:28px;display:block;margin-top:5px}.top{border-bottom:1px solid #24283a;position:sticky;top:0;background:#090a12dd;backdrop-filter:blur(12px);z-index:4}footer{text-align:center;padding:40px;color:#737b91}.error{color:#ff9cab}.ok{color:#7fe0b0}.notice{background:#201e2c;border-radius:12px;padding:12px;margin:12px 0;color:#d3d1df}
-</style></head><body><div id="app"></div><script src="https://accounts.google.com/gsi/client" async defer></script><script>
-const OWNER="h9302782@gmail.com";let user=null,lastCredential=null,state={screen:"login",selected:"the-escaping-no",occ:"proposals",q:""};
-const C=[["the-escaping-no","The Escaping NO","proposals","funny",99,false,"A playful interactive proposal with a cinematic finale."],["sweet-simple","Sweet & Simple","proposals","romantic",0,true,"A clean heartfelt proposal."],["written-stars","Written in the Stars","proposals","dreamy",149,false,"A dreamy journey through memories and clues."],["our-love-story","Our Love Story","proposals","story",199,false,"A cinematic story experience."],["classic-birthday","Classic Birthday","birthday","simple",0,true,"A simple birthday experience."],["birthday-game","Birthday Game","birthday","fun",79,false,"A playful birthday challenge."]];
-const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));const api=b=>fetch("/api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(async r=>{let x=await r.json();if(!r.ok||x.ok===false)throw Error(x.error||"Request failed");return x});
-function card(x){return `<div class="card tile"><div style="font-size:30px">${x[2]=="birthday"?"🎂":"💍"}</div><h3>${x[1]}</h3><p class="muted">${x[6]}</p><div class="price">${x[5]?"FREE":"₹"+x[4]}</div><button class="btn primary" data-use="${x[0]}" style="margin-top:10px">Use this experience</button></div>`}
-function render(){let a=document.getElementById("app");a.innerHTML=state.screen=="login"?login():state.screen=="home"?home():state.screen=="occ"?occ():state.screen=="create"?create():state.screen=="admin"?admin():transition();bind()}
-function login(){return `<div class="auth"><div class="card"><div class="brand">Forever <span class="pink">♥</span></div><p class="muted">Make it a memory.</p><div id="g"></div><div id="m"></div><div class="notice">Sign in with Google to create and manage experiences.</div></div></div>`}
+:root{--bg:#090a12;--card:#141725;--muted:#9ea5ba;--text:#f7f7fb;--pink:#ff6da8;--gold:#f5d789}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#32192f,#090a12 45%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}button,input,textarea{font:inherit}button{cursor:pointer}.wrap{max-width:1050px;margin:auto;padding:20px}.card{background:#141725dd;border:1px solid #2b3044;border-radius:22px;padding:20px}.hidden{display:none}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.brand{font-size:27px;font-weight:800}.pink{color:var(--pink)}.muted{color:var(--muted)}.auth{min-height:100vh;display:grid;place-items:center;padding:20px}.auth .card{width:min(440px,100%)}input,textarea{width:100%;padding:13px;border-radius:12px;border:1px solid #34394e;background:#0d0f18;color:#fff;margin:7px 0 15px}textarea{min-height:110px}.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:700;color:#fff;text-decoration:none;display:inline-block;text-align:center}.primary{background:linear-gradient(135deg,#ff5b9d,#ff8b73);color:#fff}.secondary{background:#22263a;color:#fff;border:1px solid #363c53}.hero{padding:50px 0}.hero h1{font-size:clamp(40px,8vw,76px);line-height:.98;margin:12px 0}.hero p{max-width:720px;color:#c2c7d5;font-size:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.tile{min-height:150px}.price{color:var(--gold);font-weight:800}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}.stat b{font-size:28px;display:block;margin-top:5px}.top{border-bottom:1px solid #24283a;position:sticky;top:0;background:#090a12dd;backdrop-filter:blur(12px);z-index:4}footer{text-align:center;padding:40px;color:#737b91}.error{color:#ff9cab}.ok{color:#7fe0b0}.notice{background:#201e2c;border-radius:12px;padding:12px;margin:12px 0;color:#d3d1df}
+
+/* ---- create-an-experience flow ---- */
+.btn:focus-visible,input:focus-visible,textarea:focus-visible,.pick:focus-visible{outline:3px solid #ffd1e3;outline-offset:2px}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.pick{cursor:pointer;transition:transform .18s ease,border-color .18s ease;text-align:left;color:inherit;font:inherit;width:100%;background:#141725dd}
+.pick:hover{transform:translateY(-3px);border-color:#ff6da8}
+.pick .ico{font-size:40px}
+.pick h3{margin:10px 0 4px;font-size:21px}
+.pick p{margin:0;color:var(--muted)}
+.pagehead{margin:6px 0 4px}
+.pagehead h2{font-size:clamp(28px,6vw,40px);margin:14px 0 6px}
+.dcard{display:flex;flex-direction:column;gap:6px}
+.dcard h3{margin:8px 0 0}
+.dcard p{margin:0;color:var(--muted);flex:1}
+.dcard .btn{margin-top:12px}
+.dcard.soon{border-style:dashed;opacity:.6}
+.tag{display:inline-block;font-size:12px;font-weight:700;border:1px solid #3a4058;border-radius:999px;padding:4px 10px;color:#c2c7d5;align-self:flex-start}
+.thumb{height:128px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#3a1736,#1b1530 60%,#2a1620);border:1px solid #2b3044;position:relative;overflow:hidden}
+.thumb .big{font-size:42px}
+.thumb .pills{position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:10px}
+.thumb .pills i{font-style:normal;font-weight:800;font-size:12px;padding:6px 14px;border-radius:999px;background:#292e42}
+.thumb .pills i.y{background:linear-gradient(135deg,#ff5b9d,#ff8a77)}
+.thumb .pills i.n{transform:translate(18px,-26px) rotate(8deg)}
+.thumb.gold{background:linear-gradient(135deg,#4a3a12,#1b1530 65%)}
+.thumb.blue{background:linear-gradient(135deg,#143a4a,#1b1530 65%)}
+.thumb.rose{background:linear-gradient(135deg,#4a1428,#1b1530 65%)}
+.thumb.soonbox{background:#10121c;border-style:dashed;color:#737b91;font-weight:700}
+.cust{display:grid;grid-template-columns:1fr;gap:18px;margin-top:12px}
+.form label{font-weight:700;display:block}
+.form .hint{color:var(--muted);font-size:13px;margin:-8px 0 14px;display:flex;justify-content:space-between;gap:10px}
+.form .grp{margin-bottom:6px}
+.pvwrap{display:none;position:fixed;inset:0;z-index:20;background:#090a12f7;overflow:auto;padding:16px}
+.pvwrap.open{display:block}
+.pvhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.pvframe{max-width:460px;margin:0 auto}
+.pvfab{position:fixed;bottom:16px;right:16px;z-index:10;box-shadow:0 8px 30px #000a;padding:14px 20px;border-radius:999px}
+@media(min-width:900px){.cust{grid-template-columns:minmax(0,1fr) 420px;align-items:start}.pvwrap{display:block;position:sticky;top:84px;inset:auto;background:transparent;padding:0;overflow:visible;z-index:1}.pvfab,#pvclose{display:none}.pvwrap .pvhead{margin-bottom:8px}}
+.linkbox{background:#0d0f18;border:1px dashed #4a5070;border-radius:12px;padding:14px;margin:16px 0;font-weight:700;word-break:break-all;color:#ffd1e3}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#22263a;border:1px solid #3a4058;color:#fff;padding:12px 20px;border-radius:999px;z-index:50;font-weight:700}
+.success{max-width:560px;margin:24px auto;text-align:center}
+.success .big{font-size:60px}
+@media (prefers-reduced-motion:reduce){.pick{transition:none}.pick:hover{transform:none}}
+</style></head><body><div id="app"></div><div id="toast"></div><script src="https://accounts.google.com/gsi/client" async defer></script><script src="/exp-engine.js"></script><script>
+
+const OWNER="h9302782@gmail.com";let user=null,lastCredential=null,state={screen:"login",type:null,design:null};
+let draft=blankDraft(),result=null,pvTimer=null,busy=false;
+
+/* ---------------- catalog ---------------- */
+const TYPES=[
+ {id:"proposal",icon:"💍",title:"Proposal",desc:"Create an interactive proposal experience"},
+ {id:"birthday",icon:"🎂",title:"Birthday Wishes",desc:"Make their birthday unforgettable"},
+ {id:"congratulations",icon:"🎉",title:"Congratulations",desc:"Celebrate their achievement"},
+ {id:"free-card",icon:"💌",title:"Free Cards",desc:"Create a simple shareable card"}
+];
+const DESIGNS={
+ "proposal":[{id:"escaping-no",title:"The Escaping NO",desc:"A playful interactive proposal where NO keeps escaping.",thumb:"💍",tone:"",pills:true,final:true},{soon:true}],
+ "birthday":[{id:"classic-birthday",title:"Classic Birthday",desc:"A warm birthday greeting with balloons and confetti.",thumb:"🎂",tone:"gold"},{soon:true}],
+ "congratulations":[{id:"achievement-celebration",title:"Achievement Celebration",desc:"Celebrate a big win with confetti and your own words.",thumb:"🏆",tone:"blue"},{soon:true}],
+ "free-card":[
+  {id:"simple-love-card",title:"Simple Love Card",desc:"A clean, heartfelt love note.",thumb:"💌",tone:"rose"},
+  {id:"simple-birthday-card",title:"Simple Birthday Card",desc:"A simple birthday card you can share in seconds.",thumb:"🎁",tone:"gold"},
+  {id:"simple-congrats-card",title:"Simple Congratulations Card",desc:"A short, sweet congratulations card.",thumb:"🎉",tone:"blue"}]
+};
+const ALL=Object.keys(DESIGNS).flatMap(k=>DESIGNS[k].filter(d=>!d.soon).map(d=>({...d,type:k})));
+const findDesign=id=>ALL.find(d=>d.id===id);
+const typeOf=id=>TYPES.find(t=>t.id===id);
+
+const LIM={name:40,msg:600,fin:200,photoBytes:600*1024,photoIn:12*1024*1024,audio:2*1024*1024};
+const AUDIO_OK=/^audio\/(mpeg|mp3|mp4|x-m4a|m4a|aac|wav|x-wav|wave|ogg|webm|flac)$/;
+
+function blankDraft(){return {recipientName:"",message:"",finalMessage:"",photo:null,audio:null}}
+
+/* ---------------- helpers ---------------- */
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const FRIENDLY={
+ E_AUTH:"Your session expired. Please sign in again.",
+ E_FORBIDDEN:"You don't have access to that.",
+ E_INVALID:"Some details are missing or invalid. Please check the form.",
+ E_TOO_LARGE:"One of your files is too large. Try a smaller photo or a shorter audio clip.",
+ E_DRIVE:"We couldn't save your files right now. Please try again.",
+ E_SHEET:"We couldn't save your experience right now. Please try again.",
+ E_NOT_FOUND:"This experience couldn't be found.",
+ E_NETWORK:"We can't reach Forever right now. Check your connection and try again.",
+ E_BACKEND:"Forever is temporarily unavailable. Please try again in a moment.",
+ E_SERVER:"Something went wrong on our side. Please try again."
+};
+function mkErr(code){const c=FRIENDLY[code]?code:"E_BACKEND";const e=new Error(FRIENDLY[c]);e.code=c;return e}
+const api=async b=>{let r,x;try{r=await fetch("/api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)})}catch(e){throw mkErr("E_NETWORK")}
+ try{x=await r.json()}catch(e){throw mkErr(r&&r.status===413?"E_TOO_LARGE":"E_BACKEND")}
+ if(!r.ok||!x||x.ok===false)throw mkErr(x&&x.code);return x};
+function toast(t){const e=document.getElementById("toast");e.innerHTML='<div class="toast" role="status">'+esc(t)+"</div>";setTimeout(()=>{e.innerHTML=""},2200)}
+const fileToB64=f=>new Promise((ok,no)=>{const r=new FileReader;r.onload=()=>ok(String(r.result).split(",")[1]);r.onerror=no;r.readAsDataURL(f)});
+function revoke(){[draft.photo,draft.audio].forEach(f=>{if(f&&f.url)URL.revokeObjectURL(f.url)})}
+function resetFlow(){revoke();draft=blankDraft();result=null;state.type=null;state.design=null}
+
+/* ---------------- screens ---------------- */
+function render(){const a=document.getElementById("app");if(!user&&state.screen!=="login"&&state.screen!=="transition")state.screen="login";
+ a.innerHTML=state.screen=="login"?login():state.screen=="home"?home():state.screen=="type"?typeScreen():state.screen=="design"?designScreen():state.screen=="customize"?customize():state.screen=="success"?success():state.screen=="admin"?admin():transition();bind();window.scrollTo(0,0)}
+
+function login(){return `<div class="auth"><div class="card"><div class="brand">Forever <span class="pink">♥</span></div><p class="muted">Make it a memory.</p><div id="g"></div><div id="m" role="alert"></div><div class="notice">Sign in with Google to create and manage experiences.</div></div></div>`}
+
 function transition(){return `<div class="auth"><div style="text-align:center;font-size:22px">♥<h2>Preparing something beautiful…</h2></div></div>`}
-function home(){return `<div class="top"><div class="wrap row between"><div class="brand">Forever <span class="pink">♥</span></div><div class="row">${user?.name||""}${user?.email===OWNER?'<button class="btn secondary" id="adm">⚡ Admin</button>':""}<button class="btn secondary" id="logout">Logout</button></div></div></div><main class="wrap"><section class="hero"><div class="muted">PRIVATE MOMENTS · MADE BEAUTIFUL</div><h1>Don't just ask.<br><span class="pink">Make it a memory.</span></h1><p>Create personalized interactive experiences for proposals, birthdays and special moments.</p><button class="btn primary" id="create">Create an Experience →</button></section><h2>Choose your moment</h2><div class="grid"><div class="card tile" data-o="proposals">💍<h3>Proposals</h3><p class="muted">Interactive proposal experiences</p></div><div class="card tile" data-o="birthday">🎂<h3>Birthday Wishes</h3><p class="muted">Make their birthday memorable</p></div><div class="card tile">🎓<h3>Congratulations</h3><p class="muted">Coming soon</p></div><div class="card tile">🎁<h3>Free Cards</h3><p class="muted">Simple cards</p></div></div><h2>Featured</h2><div class="grid">${C.slice(0,4).map(card).join("")}</div></main><footer>Made for moments worth remembering · Forever</footer>`}
-function occ(){let a=C.filter(x=>x[2]==state.occ);if(state.q)a=a.filter(x=>(x[1]+x[6]).toLowerCase().includes(state.q.toLowerCase()));return `<main class="wrap"><div class="row"><button class="btn secondary" id="back">←</button><h2>${state.occ=="birthday"?"🎂 Birthday Wishes":"💍 Proposals"}</h2></div><input id="q" placeholder="Search experiences…" value="${esc(state.q)}"><div class="grid">${a.map(card).join("")}</div></main>`}
-function create(){let x=C.find(x=>x[0]==state.selected)||C[0];return `<main class="wrap"><div class="row"><button class="btn secondary" id="back">←</button><h2>Create: ${x[1]}</h2></div><div class="card" style="max-width:700px"><label>Recipient name</label><input id="rn" placeholder="Their name"><label>Message</label><textarea id="msg" placeholder="Write your message…"></textarea><label>Photo (optional)</label><input id="photo" type="file" accept="image/*"><label>Audio (optional)</label><input id="audio" type="file" accept="audio/*"><div class="notice">MVP files are stored in your Google Drive Forever folder.</div><button class="btn primary" id="gen">Generate My Link ✨</button><div id="out"></div></div></main>`}
-function admin(){return `<main class="wrap"><div class="row between"><div><h2>⚡ Forever Admin</h2><div class="muted">${OWNER}</div></div><button class="btn secondary" id="back">← Home</button></div><div id="st" class="section">Loading…</div><div class="card"><div class="row between"><h3>Experience management</h3><button class="btn primary" id="add">+ Add Experience</button></div><div id="top"></div></div></main>`}
-function bind(){document.querySelectorAll("[data-o]").forEach(e=>e.onclick=()=>{state.occ=e.dataset.o;state.q="";state.screen="occ";render()});document.querySelectorAll("[data-use]").forEach(e=>e.onclick=()=>{state.selected=e.dataset.use;state.screen="create";render()});let b=document.getElementById("create");if(b)b.onclick=()=>{state.screen="create";render()};b=document.getElementById("adm");if(b)b.onclick=()=>{state.screen="admin";render();loadAdmin()};b=document.getElementById("logout");if(b)b.onclick=()=>{user=null;lastCredential=null;state.screen="login";render()};b=document.getElementById("back");if(b)b.onclick=()=>{state.screen="home";render()};let q=document.getElementById("q");if(q)q.oninput=()=>{state.q=q.value;render();setTimeout(()=>{let z=document.getElementById("q");z.focus();z.setSelectionRange(z.value.length,z.value.length)},0)};b=document.getElementById("gen");if(b)b.onclick=generate;if(document.getElementById("add"))document.getElementById("add").onclick=()=>{state.screen="create";render()};if(state.screen=="login")setTimeout(googleLogin,400)}
+
+function topbar(){return `<div class="top"><div class="wrap row between"><div class="brand" id="brand" style="cursor:pointer">Forever <span class="pink">♥</span></div><div class="row">${esc(user?.name||"")}${user?.email===OWNER?'<button class="btn secondary" id="adm">⚡ Admin</button>':""}<button class="btn secondary" id="logout">Logout</button></div></div></div>`}
+
+function dcardHome(x){return `<div class="card tile"><div style="font-size:30px">${x.thumb}</div><h3>${esc(x.title)}</h3><p class="muted">${esc(x.desc)}</p><div class="price">FREE</div><button class="btn primary" data-use="${x.id}" style="margin-top:10px">Use this experience</button></div>`}
+
+function home(){return topbar()+`<main class="wrap"><section class="hero"><div class="muted">PRIVATE MOMENTS · MADE BEAUTIFUL</div><h1>Don't just ask.<br><span class="pink">Make it a memory.</span></h1><p>Create personalized interactive experiences for proposals, birthdays and special moments.</p><button class="btn primary" id="create">Create an Experience →</button></section><h2>Choose your moment</h2><div class="grid">${TYPES.map(t=>`<button class="card tile pick" data-t="${t.id}"><div class="ico">${t.icon}</div><h3>${esc(t.title)}</h3><p>${esc(t.desc)}</p></button>`).join("")}</div><h2>Featured</h2><div class="grid">${["escaping-no","classic-birthday"].map(findDesign).map(dcardHome).join("")}</div></main><footer>Made for moments worth remembering · Forever</footer>`}
+
+function typeScreen(){return topbar()+`<main class="wrap"><button class="btn secondary" data-go="home">← Back</button><div class="pagehead"><h2>Choose your moment</h2><p class="muted">What are you creating today?</p></div><div class="grid">${TYPES.map(t=>`<button class="card tile pick" data-t="${t.id}"><div class="ico">${t.icon}</div><h3>${esc(t.title)}</h3><p>${esc(t.desc)}</p></button>`).join("")}</div></main>`}
+
+function thumb(d){if(d.soon)return `<div class="thumb soonbox">Coming soon</div>`;return `<div class="thumb ${d.tone||""}"><div class="big">${d.thumb}</div>${d.pills?'<div class="pills"><i class="n">NO</i><i class="y">YES ❤️</i></div>':""}</div>`}
+
+function designScreen(){const t=typeOf(state.type)||TYPES[0];return topbar()+`<main class="wrap"><button class="btn secondary" data-go="type">← Back</button><div class="pagehead"><h2>${t.icon} ${esc(t.title)}</h2><p class="muted">Pick a design to customize.</p></div><div class="grid">${(DESIGNS[t.id]||[]).map(d=>d.soon?`<div class="card dcard soon" aria-disabled="true">${thumb(d)}<h3>Coming Soon</h3><p>More designs are on the way.</p><span class="tag">Not available yet</span></div>`:`<div class="card dcard">${thumb(d)}<h3>${esc(d.title)}</h3><p>${esc(d.desc)}</p><button class="btn primary" data-use="${d.id}">Use this</button></div>`).join("")}</div></main>`}
+
+function customize(){const d=findDesign(state.design);if(!d){state.screen="type";return typeScreen()}
+ return topbar()+`<main class="wrap"><div class="row"><button class="btn secondary" data-go="design">← Back</button><h2 style="margin:0">Customize: ${esc(d.title)}</h2></div>
+ <div class="cust"><div class="card form">
+  <div class="grp"><label for="rn">Recipient name</label><input id="rn" maxlength="${LIM.name}" placeholder="Ananya" autocomplete="off" value="${esc(draft.recipientName)}"></div>
+  <div class="grp"><label for="msg">Your message</label><textarea id="msg" maxlength="${LIM.msg}" placeholder="I have something important to ask you...">${esc(draft.message)}</textarea><div class="hint"><span>Shown to them first.</span><span id="c_msg">0/${LIM.msg}</span></div></div>
+  ${d.final?`<div class="grp"><label for="fin">Final message</label><textarea id="fin" maxlength="${LIM.fin}" style="min-height:80px" placeholder="You said YES! ❤️">${esc(draft.finalMessage)}</textarea><div class="hint"><span>Shown after they say YES (or after 21 NOs).</span><span id="c_fin">0/${LIM.fin}</span></div></div>`:""}
+  <div class="grp"><label for="photo">Photo (optional)</label><input id="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><div class="hint"><span id="photoNote">Resized automatically. Stored in your Google Drive.</span></div></div>
+  <div class="grp"><label for="audio">Music / audio (optional)</label><input id="audio" type="file" accept="audio/*"><div class="hint"><span id="audioNote">MP3, M4A, WAV or OGG, up to 2 MB. Use music you have the rights to.</span></div></div>
+  <div id="err" class="error" role="alert"></div>
+  <button class="btn primary" id="gen" style="width:100%;margin-top:6px">Create Experience ✨</button>
+ </div>
+ <aside class="pvwrap" id="pvwrap" aria-label="Live preview"><div class="pvhead"><b>Live preview</b><button class="btn secondary" id="pvclose" type="button">✕ Close</button></div><div class="pvframe"><div id="pv"></div></div></aside></div>
+ <button class="btn primary pvfab" id="pvopen" type="button">👁 Preview</button></main>`}
+
+function success(){const url=result?result.url:"";return topbar()+`<main class="wrap"><div class="card success"><div class="big">💗</div><h2>Your experience is ready! ❤️</h2><p class="muted">Send this link to ${esc(draft.recipientName||"them")}. They don't need to sign in.</p><div class="linkbox" id="lk">${esc(url)}</div><div class="row" style="justify-content:center"><a class="btn primary" href="${esc(url)}" target="_blank" rel="noopener">Open Experience</a><button class="btn secondary" id="copy" type="button">Copy Link</button><button class="btn secondary" id="share" type="button">Share</button></div><p style="margin-top:22px"><button class="btn secondary" id="again" type="button">Create another</button></p></div></main>`}
+
+function admin(){return topbar()+`<main class="wrap"><div class="row between"><div><h2>⚡ Forever Admin</h2><div class="muted">${OWNER}</div></div><button class="btn secondary" data-go="home">← Home</button></div><div id="st" class="section">Loading…</div><div class="card"><div class="row between"><h3>Experience management</h3><button class="btn primary" id="add">+ Add Experience</button></div><div id="top"></div></div></main>`}
+
+/* ---------------- wiring ---------------- */
+function bind(){
+ document.querySelectorAll("[data-go]").forEach(e=>e.onclick=()=>{if(e.dataset.go==="home")resetFlow();state.screen=e.dataset.go;render()});
+ document.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>{state.type=e.dataset.t;state.screen="design";render()});
+ document.querySelectorAll("[data-use]").forEach(e=>e.onclick=()=>{const d=findDesign(e.dataset.use);if(!d)return;if(state.design!==d.id){revoke();draft=blankDraft()}state.design=d.id;state.type=d.type;state.screen="customize";render()});
+ let b=document.getElementById("create");if(b)b.onclick=()=>{resetFlow();state.screen="type";render()};
+ b=document.getElementById("brand");if(b)b.onclick=()=>{state.screen="home";render()};
+ b=document.getElementById("adm");if(b)b.onclick=()=>{state.screen="admin";render();loadAdmin()};
+ b=document.getElementById("logout");if(b)b.onclick=()=>{user=null;lastCredential=null;resetFlow();state.screen="login";render()};
+ b=document.getElementById("add");if(b)b.onclick=()=>{resetFlow();state.screen="type";render()};
+ if(state.screen=="customize")bindCustomize();
+ if(state.screen=="success")bindSuccess();
+ if(state.screen=="login")setTimeout(googleLogin,400)}
+
+function previewCfg(){return {template:state.design,recipientName:draft.recipientName,message:draft.message,finalMessage:draft.finalMessage,photoUrl:draft.photo?draft.photo.url:null,audioUrl:draft.audio?draft.audio.url:null}}
+function updatePreview(){const pv=document.getElementById("pv");if(pv)ForeverExp.render(pv,previewCfg(),{preview:true})}
+function schedulePreview(){clearTimeout(pvTimer);pvTimer=setTimeout(updatePreview,250)}
+function counts(){const m=document.getElementById("c_msg");if(m)m.textContent=draft.message.length+"/"+LIM.msg;const f=document.getElementById("c_fin");if(f)f.textContent=draft.finalMessage.length+"/"+LIM.fin}
+
+function bindCustomize(){
+ const rn=document.getElementById("rn"),msg=document.getElementById("msg"),fin=document.getElementById("fin");
+ rn.oninput=()=>{draft.recipientName=rn.value;schedulePreview()};
+ msg.oninput=()=>{draft.message=msg.value;counts();schedulePreview()};
+ if(fin)fin.oninput=()=>{draft.finalMessage=fin.value;counts();schedulePreview()};
+ document.getElementById("photo").onchange=onPhoto;
+ document.getElementById("audio").onchange=onAudio;
+ document.getElementById("pvopen").onclick=()=>{document.getElementById("pvwrap").classList.add("open");updatePreview()};
+ document.getElementById("pvclose").onclick=()=>document.getElementById("pvwrap").classList.remove("open");
+ document.getElementById("gen").onclick=generate;
+ counts();
+ if(draft.photo)document.getElementById("photoNote").textContent="Using: "+draft.photo.label+". Choose another file to replace it.";
+ if(draft.audio)document.getElementById("audioNote").textContent="Using: "+draft.audio.label+". Choose another file to replace it.";
+ updatePreview()}
+
+function setErr(t){const e=document.getElementById("err");if(e)e.textContent=t||""}
+
+async function onPhoto(ev){const inp=ev.target,f=inp.files[0],note=document.getElementById("photoNote");setErr("");
+ if(!f){if(draft.photo&&draft.photo.url)URL.revokeObjectURL(draft.photo.url);draft.photo=null;note.textContent="Resized automatically. Stored in your Google Drive.";updatePreview();return}
+ if(!/^image\/(jpeg|png|webp|gif)$/.test(f.type)){inp.value="";return setErr("Please choose a JPG, PNG, WebP or GIF photo.")}
+ if(f.size>LIM.photoIn){inp.value="";return setErr("That photo is too large. Please choose one under 12 MB.")}
+ note.textContent="Preparing photo…";
+ try{const p=await prepPhoto(f);if(draft.photo&&draft.photo.url)URL.revokeObjectURL(draft.photo.url);draft.photo=p;note.textContent="Using: "+p.label+". Choose another file to replace it.";updatePreview()}
+ catch(e){inp.value="";note.textContent="Resized automatically. Stored in your Google Drive.";setErr(e.message)}}
+
+async function prepPhoto(f){
+ const url0=URL.createObjectURL(f);
+ try{
+  const img=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error("We couldn't read that photo. Try a different one."));i.src=url0});
+  const sc=Math.min(1,1280/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.max(1,Math.round(img.naturalWidth*sc)),h=Math.max(1,Math.round(img.naturalHeight*sc));
+  const cv=document.createElement("canvas");cv.width=w;cv.height=h;const cx=cv.getContext("2d");cx.fillStyle="#fff";cx.fillRect(0,0,w,h);cx.drawImage(img,0,0,w,h);
+  let blob=null;for(const q of [.85,.72,.6,.48]){blob=await new Promise(r=>cv.toBlob(r,"image/jpeg",q));if(blob&&blob.size<=LIM.photoBytes)break}
+  if(!blob||blob.size>LIM.photoBytes)throw new Error("That photo is too detailed to shrink enough. Try a smaller one.");
+  return {name:"photo.jpg",type:"image/jpeg",data:await fileToB64(blob),url:URL.createObjectURL(blob),label:f.name+" ("+Math.round(blob.size/1024)+" KB)"};
+ }finally{URL.revokeObjectURL(url0)}}
+
+async function onAudio(ev){const inp=ev.target,f=inp.files[0],note=document.getElementById("audioNote");setErr("");
+ if(!f){if(draft.audio&&draft.audio.url)URL.revokeObjectURL(draft.audio.url);draft.audio=null;note.textContent="MP3, M4A, WAV or OGG, up to 2 MB. Use music you have the rights to.";updatePreview();return}
+ if(!AUDIO_OK.test(f.type)){inp.value="";return setErr("Please choose an MP3, M4A, WAV or OGG audio file.")}
+ if(f.size>LIM.audio){inp.value="";return setErr("That audio file is over 2 MB. Please choose a shorter clip.")}
+ try{const data=await fileToB64(f);if(draft.audio&&draft.audio.url)URL.revokeObjectURL(draft.audio.url);draft.audio={name:f.name,type:f.type,data,url:URL.createObjectURL(f),label:f.name+" ("+Math.round(f.size/1024)+" KB)"};note.textContent="Using: "+draft.audio.label+". Choose another file to replace it.";updatePreview()}
+ catch(e){inp.value="";setErr("We couldn't read that audio file. Try a different one.")}}
+
+function validate(){const n=draft.recipientName.trim(),m=draft.message.trim();
+ if(!n)return "Enter the recipient's name.";if(n.length>LIM.name)return "Keep the name under "+LIM.name+" characters.";
+ if(!m)return "Write a message for them.";if(m.length<3)return "Your message is a bit short. Add a few more words.";if(m.length>LIM.msg)return "Keep your message under "+LIM.msg+" characters.";
+ if(draft.finalMessage.length>LIM.fin)return "Keep the final message under "+LIM.fin+" characters.";return ""}
+
+async function generate(){if(busy)return;const v=validate();setErr(v);if(v)return;
+ const d=findDesign(state.design),btn=document.getElementById("gen");busy=true;btn.disabled=true;btn.textContent="Creating your experience…";
+ try{
+  const files={};if(draft.photo)files.photo={name:draft.photo.name,type:draft.photo.type,data:draft.photo.data};if(draft.audio)files.audio={name:draft.audio.name,type:draft.audio.type,data:draft.audio.data};
+  const r=await api({action:"createExperience",idToken:lastCredential,experience:{template:d.id,recipientName:draft.recipientName.trim(),message:draft.message.trim(),finalMessage:d.final?draft.finalMessage.trim():""},files});
+  if(!r||!r.id)throw mkErr("E_BACKEND");
+  result={id:r.id,url:location.origin+"/p/"+encodeURIComponent(r.id)};
+  state.screen="success";render();
+ }catch(e){
+  if(e.code==="E_AUTH"){user=null;lastCredential=null;state.screen="login";render();const m=document.getElementById("m");if(m)m.innerHTML='<div class="error">'+esc(e.message)+"</div>"}
+  else{const b2=document.getElementById("gen");if(b2){b2.disabled=false;b2.textContent="Create Experience ✨"}setErr(e.message)}
+ }finally{busy=false}}
+
+function bindSuccess(){
+ document.getElementById("copy").onclick=()=>copyLink(result.url);
+ document.getElementById("share").onclick=async()=>{if(navigator.share){try{await navigator.share({title:"Something for you 💗",text:"I made something for you 💗",url:result.url})}catch(e){/* user dismissed */}}else copyLink(result.url)};
+ document.getElementById("again").onclick=()=>{resetFlow();state.screen="type";render()}}
+async function copyLink(u){try{await navigator.clipboard.writeText(u);toast("Link copied")}catch(e){try{const t=document.createElement("textarea");t.value=u;t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();document.execCommand("copy");t.remove();toast("Link copied")}catch(x){toast("Press and hold the link to copy it")}}}
+
+/* ---------------- login (unchanged flow) ---------------- */
 function googleLogin(){if(!window.google)return;google.accounts.id.initialize({client_id:"470822665933-5g9960ptd660e6f3d8s03p3mdp50gm2c.apps.googleusercontent.com",callback:r=>{lastCredential=r.credential;api({action:"login",idToken:lastCredential}).then(x=>{user=x.user;state.screen="transition";render();setTimeout(()=>{state.screen="home";render()},700)}).catch(e=>document.getElementById("m").innerHTML='<div class="error">'+esc(e.message)+'</div>')}});google.accounts.id.renderButton(document.getElementById("g"),{theme:"outline",size:"large",width:350})}
-const data=f=>new Promise((ok,no)=>{let r=new FileReader;r.onload=()=>ok({name:f.name,type:f.type,data:r.result.split(",")[1]});r.onerror=no;r.readAsDataURL(f)});
-async function generate(){try{let n=document.getElementById("rn").value.trim();if(!n)throw Error("Enter recipient name.");let x=C.find(x=>x[0]==state.selected)||C[0],files={};for(let k of ["photo","audio"]){let f=document.getElementById(k).files[0];if(f){if(f.size>12*1024*1024)throw Error("Each file must be under 12 MB for this MVP.");files[k]=await data(f)}}let r=await api({action:"createExperience",idToken:lastCredential,experience:{type:x[0],title:x[1],recipientName:n,message:document.getElementById("msg").value,price:x[4]},files});document.getElementById("out").innerHTML='<div class="ok">Created! <a href="'+(r.url||('/p/'+r.id))+'" target="_blank">'+(r.url||('/p/'+r.id))+"</a></div>"}catch(e){document.getElementById("out").innerHTML='<div class="error">'+esc(e.message)+'</div>'}}
+
 async function loadAdmin(){try{let r=await api({action:"adminStats",idToken:lastCredential}),s=r.stats;document.getElementById("st").innerHTML='<div class="stats">'+[["Users",s.overall.users],["Visitors",s.overall.visitors],["Experiences",s.overall.experiences],["Revenue","₹"+s.overall.revenue],["Today users",s.today.newUsers],["Today logins",s.today.logins],["Today visitors",s.today.visitors],["Today revenue","₹"+s.today.revenue]].map(x=>'<div class="card stat">'+x[0]+'<b>'+x[1]+"</b></div>").join("")+"</div>";document.getElementById("top").innerHTML="<h3>Top paid experiences</h3>"+(s.topExperiences||[]).map(x=>"<p>"+esc(x.title)+" — "+x.orders+" paid orders</p>").join("")}catch(e){document.getElementById("st").innerHTML='<div class="error">'+esc(e.message)+'</div>'}}
+
 render();
+
 </script></body></html>
