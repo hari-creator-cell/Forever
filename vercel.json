@@ -1,1 +1,10 @@
-{"version":2,"cleanUrls":true,"rewrites":[{"source":"/p/:id","destination":"/player.html"}]}
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/p/:id*",
+      "destination": "/player.html"
+    }
+  ]
+}
+
