@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forever · Template Studio</title>
+<style>
+:root{color-scheme:dark;--bg:#090a12;--card:#141725;--muted:#9ea5ba;--pink:#ff6da8;--line:#30364b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#32192f,#090a12 48%);color:#f7f7fb;font:15px system-ui,sans-serif}
+.wrap{max-width:1100px;margin:auto;padding:22px}.card{background:#141725ee;border:1px solid #2b3044;border-radius:18px;padding:18px;margin:14px 0}
+h1{margin:0}.muted{color:var(--muted)}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:11px 15px;font-weight:700;color:white;background:#292e42}
+.primary{background:linear-gradient(135deg,#ff5b9d,#ff8b73)}input,textarea,select{width:100%;padding:11px;border-radius:10px;border:1px solid #34394e;background:#0d0f18;color:white;margin:6px 0 14px;font:inherit}
+label{display:block;font-weight:700}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.item{background:#101320;border:1px solid var(--line);border-radius:14px;padding:14px}.tag{font-size:12px;color:#ffd1e3;border:1px solid #69445a;border-radius:20px;padding:3px 8px}
+.error{color:#ff9cab}.ok{color:#8ce0b4}.hidden{display:none}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+small{color:var(--muted)}#editor{scroll-margin-top:20px}.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+</style>
+</head>
+<body><main class="wrap">
+<header class="row"><div><h1>Forever <span style="color:#ff6da8">♥</span> Template Studio</h1><p class="muted">Owner-only template catalogue and pricing manager</p></div><button id="logout" class="hidden">Sign out</button></header>
+<section id="login" class="card"><h2>Admin sign in</h2><p class="muted">Sign in with the Forever owner Google account.</p><div id="googleBtn"></div><p id="authMsg" class="error"></p></section>
+<section id="studio" class="hidden">
+ <div class="row"><h2>Experience templates</h2><button class="primary" id="newBtn">＋ New template</button></div>
+ <p class="muted">Archived templates are retained in the database. This editor manages template metadata, pricing and a JSON configuration payload.</p>
+ <div id="message" role="status"></div><div id="list" class="grid"></div>
+ <section id="editor" class="card hidden">
+  <div class="row"><h2 id="editorTitle">New template</h2><button id="cancelBtn">Close</button></div>
+  <form id="form">
+   <input type="hidden" id="id">
+   <div class="two">
+    <div><label for="title">Template name</label><input id="title" maxlength="80" required></div>
+    <div><label for="category">Category</label><input id="category" maxlength="40" placeholder="Birthday, Proposal, Celebration…" required></div>
+    <div><label for="emoji">Emoji / icon</label><input id="emoji" maxlength="8" value="✨"></div>
+    <div><label for="baseTemplate">Start from existing layout ID (optional)</label><input id="baseTemplate" placeholder="classic-birthday"></div>
+    <div><label for="pricingModel">Pricing model</label><select id="pricingModel"><option value="free">Free</option><option value="one_time">One-time template purchase</option><option value="per_experience">Pay per experience</option></select></div>
+    <div><label for="price">Price (INR)</label><input id="price" type="number" min="0" max="100000" step="1" value="0"></div>
+    <div><label for="status">Status</label><select id="status"><option value="draft">Draft</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="archived">Archived</option></select></div>
+   </div>
+   <label for="description">Description</label><textarea id="description" maxlength="300" rows="3"></textarea>
+   <label for="configJson">Template configuration (JSON)</label><textarea id="configJson" rows="12" spellcheck="false">{\n  "layout": "card",\n  "theme": {"background": "#090a12", "accent": "#ff6da8", "text": "#ffffff"},\n  "sections": [{"type":"heading"},{"type":"message"},{"type":"image"}],\n  "animation": "none",\n  "buttons": []\n}</textarea>
+   <small>Configuration is stored and versioned. The current customer renderer still supports its existing built-in layouts; custom JSON rendering requires the next integration step.</small>
+   <div class="actions"><button class="primary" type="submit">Save template</button><button type="button" id="archiveBtn">Archive</button></div>
+   <p id="formMsg" class="error"></p>
+  </form>
+ </section>
+</section></main>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+"use strict";
+const GOOGLE_CLIENT_ID="470822665933-5g9960ptd660e6f3d8s03p3mdp50gm2c.apps.googleusercontent.com";
+let token="", templates=[];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function api(body){
+ const r=await fetch("/api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+ const x=await r.json();if(!r.ok||!x||x.ok===false)throw new Error(x?.error||x?.code||"Request failed");return x;
+}
+function showMessage(s,ok=false){$("message").className=ok?"ok":"error";$("message").textContent=s;}
+function signedIn(){
+ $("login").classList.add("hidden");$("studio").classList.remove("hidden");$("logout").classList.remove("hidden");load();
+}
+function login(){
+ google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:async r=>{
+  try{token=r.credential;await api({action:"adminTemplatesList",idToken:token});signedIn();}
+  catch(e){token="";$("authMsg").textContent=e.message;}
+ }});
+ google.accounts.id.renderButton($("googleBtn"),{theme:"filled_black",size:"large",shape:"pill",text:"signin_with"});
+}
+async function load(){
+ try{const x=await api({action:"adminTemplatesList",idToken:token});templates=x.templates||[];render();}
+ catch(e){showMessage(e.message);}
+}
+function render(){
+ $("list").innerHTML=templates.length?templates.map(t=>`<article class="item">
+  <div class="row"><strong>${esc(t.emoji)} ${esc(t.title)}</strong><span class="tag">${esc(t.status)}</span></div>
+  <p class="muted">${esc(t.category)} · ${esc(t.description)}</p>
+  <p>${t.pricingModel==="free"?"Free":(t.pricingModel==="one_time"?"One-time":"Per experience")+" · ₹"+Number(t.price).toLocaleString("en-IN")}</p>
+  <small>ID: ${esc(t.id)} · Version ${t.version}</small>
+  <div class="actions"><button data-edit="${esc(t.id)}">Edit</button>
+  ${t.status==="active"?`<button data-status="inactive" data-id="${esc(t.id)}">Deactivate</button>`:`<button data-status="active" data-id="${esc(t.id)}">Activate</button>`}
+  ${t.status!=="archived"?`<button data-status="archived" data-id="${esc(t.id)}">Archive</button>`:""}
+  </div></article>`).join(""):'<p class="muted">No templates yet. Create your first template.</p>';
+ document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>edit(b.dataset.edit));
+ document.querySelectorAll("[data-status]").forEach(b=>b.onclick=()=>setStatus(b.dataset.id,b.dataset.status));
+}
+function openEditor(t){
+ $("editor").classList.remove("hidden");$("formMsg").textContent="";
+ $("editorTitle").textContent=t?"Edit template":"New template";
+ ["id","title","category","emoji","baseTemplate","pricingModel","price","status","description","configJson"].forEach(k=>$(k).value=t?({
+  id:t.id,title:t.title,category:t.category,emoji:t.emoji,baseTemplate:t.baseTemplate,
+  pricingModel:t.pricingModel,price:t.price,status:t.status,description:t.description,configJson:t.configJson
+ })[k]:({id:"",title:"",category:"",emoji:"✨",baseTemplate:"",pricingModel:"free",price:0,status:"draft",description:"",configJson:JSON.stringify({layout:"card",theme:{background:"#090a12",accent:"#ff6da8",text:"#ffffff"},sections:[{type:"heading"},{type:"message"},{type:"image"}],animation:"none",buttons:[]},null,2)})[k]);
+ $("archiveBtn").classList.toggle("hidden",!t);
+ $("editor").scrollIntoView({behavior:"smooth"});
+}
+function edit(id){openEditor(templates.find(t=>t.id===id));}
+async function setStatus(id,status){
+ if(status==="archived"&&!confirm("Archive this template? Existing customer experiences are not deleted."))return;
+ try{await api({action:"adminTemplateStatus",idToken:token,id,status});showMessage("Template updated.",true);await load();}
+ catch(e){showMessage(e.message);}
+}
+$("newBtn").onclick=()=>openEditor(null);$("cancelBtn").onclick=()=>$("editor").classList.add("hidden");
+$("pricingModel").onchange=()=>{if($("pricingModel").value==="free")$("price").value=0;};
+$("form").onsubmit=async e=>{
+ e.preventDefault();$("formMsg").textContent="";
+ try{
+  JSON.parse($("configJson").value);
+  const payload={id:$("id").value,title:$("title").value,category:$("category").value,
+   emoji:$("emoji").value,baseTemplate:$("baseTemplate").value,pricingModel:$("pricingModel").value,
+   price:Number($("price").value||0),status:$("status").value,description:$("description").value,
+   configJson:$("configJson").value};
+  await api({action:"adminTemplateSave",idToken:token,template:payload});
+  $("editor").classList.add("hidden");showMessage("Template saved and versioned.",true);await load();
+ }catch(e){$("formMsg").textContent=e.message;}
+};
+$("archiveBtn").onclick=()=>setStatus($("id").value,"archived");
+$("logout").onclick=()=>{token="";$("studio").classList.add("hidden");$("logout").classList.add("hidden");$("login").classList.remove("hidden");};
+window.addEventListener("load",()=>{if(window.google?.accounts?.id)login();else setTimeout(()=>{if(window.google?.accounts?.id)login();},800);});
+</script></body></html>
